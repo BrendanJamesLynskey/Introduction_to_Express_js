@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Express.js</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+  <style>
+:root {
+  --amber:  #f5a623;
+  --green:  #4ecb8d;
+  --purple: #a78bfa;
+  --blue:   #60a5fa;
+  --red:    #f87171;
+  --bg:     #0a0a0f;
+  --bg2:    #10101a;
+  --bg3:    #181824;
+  --border: #2a2a3a;
+  --text:   #e8e8f0;
+  --muted:  #8888a8;
+}
+
+.reveal-viewport { background: var(--bg); }
+.reveal .slides section { background: transparent; }
+
+.reveal { font-family: 'DM Sans', sans-serif; color: var(--text); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; }
+.reveal h1 { font-size: 1.6em; color: var(--amber); line-height: 1.1; }
+.reveal h2 { font-size: 1.1em; color: var(--amber); margin-bottom: .2em; }
+.reveal h3 { font-size: .78em; color: var(--green); margin-bottom: .15em; }
+.reveal p  { font-size: .56em; line-height: 1.45; color: var(--text); }
+.reveal li { font-size: .54em; line-height: 1.45; margin-bottom: .1em; }
+.reveal code { font-family: 'JetBrains Mono', monospace; font-size: .72em; }
+.reveal pre  { box-shadow: none; background: var(--bg3); border: 1px solid var(--border);
+               border-radius: 6px; padding: .3em .5em; margin: .25em 0; }
+.reveal pre code { font-size: .52em; line-height: 1.35; background: transparent; color: #cdd6f4; }
+
+.slide-hdr {
+  display: flex; align-items: center; gap: .4em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .2em; margin-bottom: .3em;
+}
+.slide-hdr .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .42em; font-weight: 500;
+  color: var(--bg); background: var(--amber);
+  padding: .1em .4em; border-radius: 3px;
+  letter-spacing: .04em;
+}
+.slide-hdr h2 { margin: 0; font-size: .95em; }
+
+.cols   { display: grid; gap: .5em; }
+.cols-2 { grid-template-columns: 1fr 1fr; }
+.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.cols-6040 { grid-template-columns: 6fr 4fr; }
+.cols-4060 { grid-template-columns: 4fr 6fr; }
+
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: .35em .6em;
+}
+.card.amber { border-left: 3px solid var(--amber); }
+.card.green { border-left: 3px solid var(--green); }
+.card.purple{ border-left: 3px solid var(--purple); }
+.card.blue  { border-left: 3px solid var(--blue); }
+.card.red   { border-left: 3px solid var(--red); }
+.card h3 { font-size: .64em; margin: 0 0 .12em; }
+.card p  { font-size: .52em; margin: 0; color: #b8b8d0; }
+.card ul { margin: 0; padding-left: 1em; }
+.card li { font-size: .52em; color: #b8b8d0; margin-bottom: .02em; }
+
+.reveal table { width: 100%; border-collapse: collapse; font-size: .5em; }
+.reveal table th { background: var(--bg3); color: var(--amber); font-weight: 600;
+                   padding: .2em .4em; border: 1px solid var(--border); text-align: left; }
+.reveal table td { padding: .18em .4em; border: 1px solid var(--border); color: #ccc; }
+.reveal table tr:nth-child(even) td { background: #0e0e18; }
+
+.a  { color: var(--amber); font-weight: 600; }
+.g  { color: var(--green); font-weight: 600; }
+.p  { color: var(--purple); font-weight: 600; }
+.b  { color: var(--blue); font-weight: 600; }
+.r  { color: var(--red); font-weight: 600; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+svg.diagram { display: block; margin: 0 auto; overflow: visible; }
+
+.pill {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: .44em; padding: .08em .4em; border-radius: 99px;
+  border: 1px solid; margin: 0 .08em;
+}
+.pill.amber { color: var(--amber); border-color: var(--amber); }
+.pill.green { color: var(--green); border-color: var(--green); }
+.pill.purple{ color: var(--purple); border-color: var(--purple); }
+.pill.blue  { color: var(--blue); border-color: var(--blue); }
+
+.reveal .slide-footer { display: none; }
+.title-slide h1 { font-size: 1.8em; }
+.title-slide .subtitle {
+  font-size: .7em; color: var(--green); font-family: 'DM Sans', sans-serif;
+  font-weight: 300; letter-spacing: .04em; margin: .3em 0 .6em;
+}
+.title-slide .meta { font-size: .48em; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+.reveal ul, .reveal ol { margin: .15em 0 .15em 1em; }
+.reveal .slides > section { display: flex !important; flex-direction: column !important; overflow-y: auto !important; align-items: stretch !important; justify-content: flex-start !important; }
+  </style>
+</head>
+<body>
+  <div class="reveal"><div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 01 — TITLE -->
+<!-- ============================================================ -->
+<section class="title-slide" data-background-color="#0a0a0f">
+  <div style="text-align:left; max-width:820px; margin:0 auto; padding: 1em 0;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:.5em; color:var(--muted); margin-bottom:.4em; letter-spacing:.1em;">NODE.JS WEB FRAMEWORKS</div>
+    <h1>Introduction to Express.js</h1>
+    <div class="subtitle">Fast, Unopinionated, Minimalist Web Framework for Node.js</div>
+    <div style="width:60px; height:3px; background:var(--amber); margin-bottom:1.4em;"></div>
+    <div class="meta">19 slides &middot; routing, middleware, error handling, security, production &middot; 2026</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 02 — AGENDA -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">01</span><h2>Agenda</h2></div>
+  <div class="cols cols-2">
+    <div class="card amber">
+      <h3>Foundations</h3>
+      <ul>
+        <li>What Is Express.js?</li>
+        <li>Hello World &amp; App Structure</li>
+        <li>Routing &mdash; Methods, Paths, Parameters</li>
+        <li>Route Organisation</li>
+        <li>Request &amp; Response Objects</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Middleware &amp; Built-Ins</h3>
+      <ul>
+        <li>Middleware Fundamentals</li>
+        <li>Built-in Middleware</li>
+        <li>Third-Party Middleware</li>
+        <li>Error Handling</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Integration &amp; Configuration</h3>
+      <ul>
+        <li>Template Engine Integration</li>
+        <li>Static File Serving</li>
+        <li>Environment &amp; Configuration</li>
+        <li>Security Best Practices</li>
+      </ul>
+    </div>
+    <div class="card blue">
+      <h3>Production</h3>
+      <ul>
+        <li>Project Structure &amp; Patterns</li>
+        <li>Express 5 &mdash; What's New</li>
+        <li>Complete Working Example</li>
+        <li>Summary &amp; Next Steps</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 03 — WHAT IS EXPRESS.JS? -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">02</span><h2>What Is Express.js?</h2></div>
+  <div class="cols cols-6040">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>History &amp; Philosophy</h3>
+        <p>Express was created by <span class="g">TJ Holowaychuk</span> in 2010, inspired by Ruby's <span class="b">Sinatra</span>. It is the <span class="a">de facto standard</span> web framework for Node.js &mdash; minimalist by design, providing a thin layer of features without obscuring Node's own APIs.</p>
+      </div>
+      <div class="card green">
+        <h3>Key Characteristics</h3>
+        <ul>
+          <li><span class="a">Minimalist core</span> &mdash; routing, middleware, and HTTP utilities only</li>
+          <li><span class="a">Unopinionated</span> &mdash; no prescribed project structure or ORM</li>
+          <li><span class="a">Middleware-driven</span> &mdash; everything is a function in the request pipeline</li>
+          <li><span class="a">~35M weekly npm downloads</span> &mdash; most popular Node.js framework</li>
+          <li><span class="a">Massive ecosystem</span> &mdash; thousands of middleware packages available</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Install &amp; Quick Start</h3>
+        <pre><code class="language-bash">mkdir my-app && cd my-app
+npm init -y
+npm install express</code></pre>
+        <pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+app.get('/', (req, res) =&gt; {
+  res.send('Hello Express!');
+});
+
+app.listen(3000, () =&gt; {
+  console.log('Server running on :3000');
+});</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>Built On Node's http Module</h3>
+        <p>Express wraps Node's native <code>http.createServer()</code>, adding routing, middleware chaining, and a cleaner API &mdash; but you can still access the raw <code>req</code> and <code>res</code> objects underneath.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 04 — HELLO WORLD & APP STRUCTURE -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">03</span><h2>Hello World &amp; App Structure</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>Creating the App</h3>
+        <pre><code class="language-javascript">const express = require('express');
+const app = express();
+
+// app is both a function and an object
+// — it holds settings, routes, and
+//   acts as the request handler</code></pre>
+      </div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Defining Routes</h3>
+        <pre><code class="language-javascript">// HTTP method + path + handler
+app.get('/', (req, res) =&gt; {
+  res.send('Homepage');
+});
+
+app.get('/about', (req, res) =&gt; {
+  res.send('About page');
+});
+
+app.post('/contact', (req, res) =&gt; {
+  res.json({ received: true });
+});</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>Starting the Server</h3>
+        <pre><code class="language-javascript">const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () =&gt; {
+  console.log(`Listening on port ${PORT}`);
+});
+
+// Returns an http.Server instance
+// — you can use it for WebSockets, etc.</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Request Lifecycle</h3>
+        <svg class="diagram" viewBox="0 0 300 240" style="max-width:280px;">
+          <rect x="80" y="5" width="140" height="35" rx="5" fill="none" stroke="var(--amber)" stroke-width="1.5"/>
+          <text x="150" y="27" text-anchor="middle" fill="var(--text)" font-size="11" font-family="JetBrains Mono">Incoming Request</text>
+          <line x1="150" y1="40" x2="150" y2="60" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="80" y="60" width="140" height="35" rx="5" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="150" y="82" text-anchor="middle" fill="var(--text)" font-size="11" font-family="JetBrains Mono">Middleware Stack</text>
+          <line x1="150" y1="95" x2="150" y2="115" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="80" y="115" width="140" height="35" rx="5" fill="none" stroke="var(--purple)" stroke-width="1.5"/>
+          <text x="150" y="137" text-anchor="middle" fill="var(--text)" font-size="11" font-family="JetBrains Mono">Route Handler</text>
+          <line x1="150" y1="150" x2="150" y2="170" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="80" y="170" width="140" height="35" rx="5" fill="none" stroke="var(--blue)" stroke-width="1.5"/>
+          <text x="150" y="192" text-anchor="middle" fill="var(--text)" font-size="11" font-family="JetBrains Mono">Response Sent</text>
+          <defs><marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--muted)"/></marker></defs>
+        </svg>
+      </div>
+      <div class="card red">
+        <h3>app.set() &amp; app.get()</h3>
+        <pre><code class="language-javascript">// Store application settings
+app.set('view engine', 'ejs');
+app.set('port', 3000);
+
+// Retrieve settings
+app.get('view engine'); // 'ejs'
+app.get('env');         // 'development'
+
+// Note: app.get(path, handler) is
+// also the route method — Express
+// overloads based on argument count</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 05 — ROUTING: METHODS, PATHS, PARAMETERS -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">04</span><h2>Routing &mdash; Methods, Paths, Parameters</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>HTTP Methods</h3>
+        <pre><code class="language-javascript">app.get('/users',    handler); // Read
+app.post('/users',   handler); // Create
+app.put('/users/1',  handler); // Replace
+app.patch('/users/1',handler); // Update
+app.delete('/users/1',handler);// Delete
+
+// Match ALL methods
+app.all('/secret', requireAuth, handler);</code></pre>
+      </div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Route Parameters</h3>
+        <pre><code class="language-javascript">// Named parameters — captured in req.params
+app.get('/users/:id', (req, res) =&gt; {
+  console.log(req.params.id); // '42'
+  res.send(`User ${req.params.id}`);
+});
+
+// Multiple params
+app.get('/users/:userId/posts/:postId',
+  (req, res) =&gt; {
+    // req.params = { userId, postId }
+  }
+);</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>Query Strings</h3>
+        <pre><code class="language-javascript">// GET /search?q=express&amp;page=2
+app.get('/search', (req, res) =&gt; {
+  req.query.q;    // 'express'
+  req.query.page; // '2' (always string)
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Pattern Matching</h3>
+        <pre><code class="language-javascript">// Regex in route paths
+app.get(/.*fly$/, handler);
+// matches butterfly, dragonfly
+
+// Optional parameter (Express 5 style)
+app.get('/users/:id?', handler);
+
+// Route chaining with app.route()
+app.route('/books')
+  .get((req, res)  =&gt; { /* list */ })
+  .post((req, res) =&gt; { /* create */ });</code></pre>
+      </div>
+      <div class="card red">
+        <h3>Multiple Handlers</h3>
+        <pre><code class="language-javascript">// Array of handlers / middleware chain
+app.get('/dashboard',
+  authenticate,
+  authorise('admin'),
+  (req, res) =&gt; {
+    res.render('dashboard');
+  }
+);
+
+// Each handler can call next()
+// to pass control to the next one</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 06 — ROUTE ORGANISATION -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">05</span><h2>Route Organisation</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>express.Router()</h3>
+        <pre><code class="language-javascript">// routes/users.js
+const router = require('express').Router();
+
+router.get('/', (req, res) =&gt; {
+  res.json(users);
+});
+
+router.get('/:id', (req, res) =&gt; {
+  res.json(users[req.params.id]);
+});
+
+router.post('/', (req, res) =&gt; {
+  // create user
+});
+
+module.exports = router;</code></pre>
+      </div>
+      <div class="card green">
+        <h3>Mounting Routers</h3>
+        <pre><code class="language-javascript">// app.js
+const usersRouter = require('./routes/users');
+const postsRouter = require('./routes/posts');
+
+app.use('/api/users', usersRouter);
+app.use('/api/posts', postsRouter);
+
+// GET /api/users     → router.get('/')
+// GET /api/users/42  → router.get('/:id')
+// GET /api/posts     → postsRouter.get('/')</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>Router-Level Middleware</h3>
+        <pre><code class="language-javascript">const adminRouter = express.Router();
+
+// Applies only to this router's routes
+adminRouter.use(requireAuth);
+adminRouter.use(requireAdmin);
+
+adminRouter.get('/dashboard', handler);
+adminRouter.get('/settings', handler);
+
+app.use('/admin', adminRouter);</code></pre>
+      </div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Modular Route Files</h3>
+        <pre><code class="language-text">routes/
+├── index.js      ← loads all routers
+├── auth.js       ← /auth/*
+├── users.js      ← /api/users/*
+├── posts.js      ← /api/posts/*
+└── admin.js      ← /admin/*</code></pre>
+      </div>
+      <div class="card red">
+        <h3>router.param()</h3>
+        <pre><code class="language-javascript">// Pre-process :id for all routes
+router.param('id', async (req, res, next, id) =&gt; {
+  req.user = await User.findById(id);
+  if (!req.user) return res.status(404).json(
+    { error: 'Not found' }
+  );
+  next();
+});</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 07 — REQUEST & RESPONSE OBJECTS -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">06</span><h2>Request &amp; Response Objects</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>req &mdash; Key Properties</h3>
+        <table>
+          <thead><tr><th>Property</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>req.params</code></td><td>Route parameters (<code>:id</code>)</td></tr>
+            <tr><td><code>req.query</code></td><td>Query string (<code>?q=x</code>)</td></tr>
+            <tr><td><code>req.body</code></td><td>Parsed body (needs middleware)</td></tr>
+            <tr><td><code>req.headers</code></td><td>Request headers object</td></tr>
+            <tr><td><code>req.method</code></td><td>GET, POST, PUT, etc.</td></tr>
+            <tr><td><code>req.path</code></td><td>URL path without query</td></tr>
+            <tr><td><code>req.cookies</code></td><td>Cookies (needs cookie-parser)</td></tr>
+            <tr><td><code>req.ip</code></td><td>Client IP address</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card green">
+        <h3>req.body Example</h3>
+        <pre><code class="language-javascript">// Requires body-parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
+
+app.post('/api/users', (req, res) =&gt; {
+  console.log(req.body.name);
+  console.log(req.body.email);
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>res &mdash; Key Methods</h3>
+        <table>
+          <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>res.send()</code></td><td>Send string/Buffer/object</td></tr>
+            <tr><td><code>res.json()</code></td><td>Send JSON response</td></tr>
+            <tr><td><code>res.render()</code></td><td>Render a view template</td></tr>
+            <tr><td><code>res.redirect()</code></td><td>Redirect to another URL</td></tr>
+            <tr><td><code>res.status()</code></td><td>Set HTTP status code</td></tr>
+            <tr><td><code>res.sendFile()</code></td><td>Send a file as response</td></tr>
+            <tr><td><code>res.set()</code></td><td>Set response headers</td></tr>
+            <tr><td><code>res.cookie()</code></td><td>Set a cookie</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card blue">
+        <h3>Chaining &amp; Common Patterns</h3>
+        <pre><code class="language-javascript">// Status + JSON
+res.status(201).json({ id: newUser.id });
+
+// Status + Render
+res.status(404).render('404', {
+  title: 'Not Found'
+});
+
+// Redirect with status
+res.redirect(301, '/new-url');
+
+// Set header + send
+res.set('X-Request-Id', uuid()).json(data);</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 08 — MIDDLEWARE FUNDAMENTALS -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">07</span><h2>Middleware Fundamentals</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>The Middleware Signature</h3>
+        <pre><code class="language-javascript">// Every middleware is a function with
+// (req, res, next)
+const logger = (req, res, next) =&gt; {
+  console.log(`${req.method} ${req.path}`);
+  next(); // pass to next middleware
+};
+
+app.use(logger);</code></pre>
+        <p>If you don't call <code>next()</code>, the request <span class="r">hangs</span> &mdash; no response is ever sent.</p>
+      </div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Order Matters</h3>
+        <pre><code class="language-javascript">// Middleware executes top to bottom
+app.use(express.json());     // 1st
+app.use(cors());             // 2nd
+app.use(helmet());           // 3rd
+app.use('/api', authMiddleware); // 4th
+
+app.get('/api/data', handler); // 5th
+
+// Error handler must be LAST
+app.use(errorHandler);        // 6th</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>Types of Middleware</h3>
+        <table>
+          <thead><tr><th>Type</th><th>Scope</th></tr></thead>
+          <tbody>
+            <tr><td><span class="a">Application-level</span></td><td><code>app.use(fn)</code> &mdash; runs on every request</td></tr>
+            <tr><td><span class="g">Router-level</span></td><td><code>router.use(fn)</code> &mdash; scoped to router</td></tr>
+            <tr><td><span class="b">Route-level</span></td><td>Inline: <code>app.get(path, fn, handler)</code></td></tr>
+            <tr><td><span class="r">Error-handling</span></td><td><code>(err, req, res, next)</code> &mdash; 4 args</td></tr>
+            <tr><td><span class="p">Built-in</span></td><td><code>express.json()</code>, <code>express.static()</code></td></tr>
+            <tr><td><span class="p">Third-party</span></td><td><code>cors()</code>, <code>helmet()</code>, <code>morgan()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card blue">
+        <h3>Middleware Pipeline</h3>
+        <svg class="diagram" viewBox="0 0 440 70" style="max-width:420px;">
+          <rect x="0" y="10" width="80" height="40" rx="5" fill="none" stroke="var(--amber)" stroke-width="1.5"/>
+          <text x="40" y="35" text-anchor="middle" fill="var(--text)" font-size="10" font-family="JetBrains Mono">json()</text>
+          <line x1="80" y1="30" x2="110" y2="30" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <rect x="110" y="10" width="80" height="40" rx="5" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="150" y="35" text-anchor="middle" fill="var(--text)" font-size="10" font-family="JetBrains Mono">cors()</text>
+          <line x1="190" y1="30" x2="220" y2="30" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <rect x="220" y="10" width="80" height="40" rx="5" fill="none" stroke="var(--purple)" stroke-width="1.5"/>
+          <text x="260" y="35" text-anchor="middle" fill="var(--text)" font-size="10" font-family="JetBrains Mono">auth()</text>
+          <line x1="300" y1="30" x2="330" y2="30" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <rect x="330" y="10" width="100" height="40" rx="5" fill="none" stroke="var(--blue)" stroke-width="1.5"/>
+          <text x="380" y="35" text-anchor="middle" fill="var(--text)" font-size="10" font-family="JetBrains Mono">route handler</text>
+          <text x="95" y="65" text-anchor="middle" fill="var(--muted)" font-size="9" font-family="DM Sans">next()</text>
+          <text x="205" y="65" text-anchor="middle" fill="var(--muted)" font-size="9" font-family="DM Sans">next()</text>
+          <text x="315" y="65" text-anchor="middle" fill="var(--muted)" font-size="9" font-family="DM Sans">next()</text>
+          <defs><marker id="arr2" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--muted)"/></marker></defs>
+        </svg>
+        <p>Each middleware can modify <code>req</code>/<code>res</code>, end the cycle, or call <code>next()</code> to continue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 09 — BUILT-IN MIDDLEWARE -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">08</span><h2>Built-in Middleware</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>express.json()</h3>
+        <pre><code class="language-javascript">// Parses JSON request bodies
+app.use(express.json());
+
+// Options
+app.use(express.json({
+  limit: '10kb',      // max body size
+  strict: true,       // only objects/arrays
+  type: 'application/json'
+}));
+
+// POST { "name": "Ada" }
+app.post('/api/users', (req, res) =&gt; {
+  console.log(req.body.name); // 'Ada'
+});</code></pre>
+      </div>
+      <div class="card green">
+        <h3>express.urlencoded()</h3>
+        <pre><code class="language-javascript">// Parses URL-encoded form data
+app.use(express.urlencoded({
+  extended: true   // use qs library
+}));
+
+// &lt;form method="POST"&gt;
+//   &lt;input name="email" value="a@b.com"&gt;
+// &lt;/form&gt;
+app.post('/login', (req, res) =&gt; {
+  console.log(req.body.email); // 'a@b.com'
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>express.static()</h3>
+        <pre><code class="language-javascript">const path = require('path');
+
+// Serve files from /public
+app.use(express.static(
+  path.join(__dirname, 'public')
+));
+
+// With virtual path prefix
+app.use('/assets', express.static(
+  path.join(__dirname, 'public')
+));
+// /assets/css/style.css → public/css/style.css
+
+// Options
+app.use(express.static('public', {
+  maxAge: '1d',        // cache control
+  index: 'index.html', // default file
+  dotfiles: 'ignore'   // hide .files
+}));</code></pre>
+      </div>
+      <div class="card blue">
+        <h3>express.raw() &amp; express.text()</h3>
+        <pre><code class="language-javascript">// Parse body as Buffer
+app.use('/webhook',
+  express.raw({ type: 'application/octet-stream' })
+);
+
+// Parse body as plain text
+app.use('/logs',
+  express.text({ type: 'text/plain' })
+);</code></pre>
+        <p>Less common but useful for webhooks (Stripe, GitHub) and log ingestion endpoints.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10 — THIRD-PARTY MIDDLEWARE -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">09</span><h2>Third-Party Middleware</h2></div>
+  <div class="cols cols-6040">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>Essential Packages</h3>
+        <table>
+          <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>cors</code></td><td>Cross-Origin Resource Sharing headers</td></tr>
+            <tr><td><code>helmet</code></td><td>Security headers (15+ protections)</td></tr>
+            <tr><td><code>morgan</code></td><td>HTTP request logging</td></tr>
+            <tr><td><code>compression</code></td><td>Gzip/Brotli response compression</td></tr>
+            <tr><td><code>express-rate-limit</code></td><td>Rate limiting per IP/key</td></tr>
+            <tr><td><code>cookie-parser</code></td><td>Parse cookies into req.cookies</td></tr>
+            <tr><td><code>express-session</code></td><td>Server-side session management</td></tr>
+            <tr><td><code>multer</code></td><td>Multipart/file upload handling</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Setup Example</h3>
+        <pre><code class="language-javascript">const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
+const rateLimit = require(
+  'express-rate-limit'
+);
+
+app.use(helmet());
+app.use(cors({ origin: 'https://mysite.com' }));
+app.use(compression());
+app.use(morgan('combined'));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 min
+  max: 100  // 100 requests per window
+});
+app.use('/api', limiter);</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>Tip: Order Convention</h3>
+        <p><span class="a">Security</span> first (helmet, cors), then <span class="g">parsing</span> (json, urlencoded), then <span class="b">logging</span> (morgan), then <span class="p">routes</span>, then <span class="r">error handlers</span> last.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11 — ERROR HANDLING -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">10</span><h2>Error Handling</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card red" style="margin-bottom:.4em;">
+        <h3>Error Middleware Signature</h3>
+        <pre><code class="language-javascript">// MUST have exactly 4 parameters
+app.use((err, req, res, next) =&gt; {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message
+  });
+});
+
+// Trigger with next(err)
+app.get('/fail', (req, res, next) =&gt; {
+  const err = new Error('Something broke');
+  err.status = 500;
+  next(err); // skips to error handler
+});</code></pre>
+      </div>
+      <div class="card amber">
+        <h3>Custom Error Classes</h3>
+        <pre><code class="language-javascript">class AppError extends Error {
+  constructor(message, status = 500) {
+    super(message);
+    this.status = status;
+    this.isOperational = true;
+  }
+}
+
+class NotFoundError extends AppError {
+  constructor(resource = 'Resource') {
+    super(`${resource} not found`, 404);
+  }
+}
+
+// Usage in route
+app.get('/users/:id', async (req, res, next) =&gt; {
+  const user = await User.findById(req.params.id);
+  if (!user) return next(new NotFoundError('User'));
+  res.json(user);
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Async Error Catching</h3>
+        <pre><code class="language-javascript">// Express 4: wrap async handlers
+const asyncHandler = (fn) =&gt;
+  (req, res, next) =&gt;
+    Promise.resolve(fn(req, res, next))
+      .catch(next);
+
+app.get('/users', asyncHandler(
+  async (req, res) =&gt; {
+    const users = await User.find();
+    res.json(users);
+    // Thrown errors auto-forwarded to
+    // error middleware via .catch(next)
+  }
+));
+
+// Express 5: automatic — no wrapper needed!
+// Rejected promises are caught automatically</code></pre>
+      </div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>404 Handler</h3>
+        <pre><code class="language-javascript">// Place AFTER all routes, BEFORE error handler
+app.use((req, res, next) =&gt; {
+  res.status(404).json({
+    error: `Cannot ${req.method} ${req.path}`
+  });
+});</code></pre>
+      </div>
+      <div class="card blue">
+        <h3>Tip: Layered Error Handling</h3>
+        <p>Use <span class="a">operational errors</span> (bad input, not found) for client-facing messages and <span class="r">programmer errors</span> (bugs) for logging + generic 500. Never leak stack traces in production.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12 — TEMPLATE ENGINE INTEGRATION -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">11</span><h2>Template Engine Integration</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>Setting Up a View Engine</h3>
+        <pre><code class="language-javascript">const path = require('path');
+
+// Tell Express which engine to use
+app.set('view engine', 'ejs');
+
+// Tell Express where views live
+app.set('views', path.join(
+  __dirname, 'views'
+));
+
+// Now .ejs extension is optional:
+res.render('home'); // views/home.ejs</code></pre>
+      </div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>res.render() in Action</h3>
+        <pre><code class="language-javascript">app.get('/', (req, res) =&gt; {
+  res.render('home', {
+    title: 'Welcome',
+    user: req.user,
+    items: [1, 2, 3]
+  });
+});
+
+// Data available in the template:
+// &lt;%= title %&gt;  &lt;%= user.name %&gt;</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>app.locals &amp; res.locals</h3>
+        <pre><code class="language-javascript">// Global — available in every render
+app.locals.siteName = 'My App';
+
+// Per-request — set in middleware
+app.use((req, res, next) =&gt; {
+  res.locals.currentUser = req.user;
+  next();
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Popular Engines</h3>
+        <table>
+          <thead><tr><th>Engine</th><th>Syntax</th><th>Install</th></tr></thead>
+          <tbody>
+            <tr><td><span class="a">EJS</span></td><td><code>&lt;%= %&gt;</code> JS in HTML</td><td><code>npm i ejs</code></td></tr>
+            <tr><td><span class="g">Pug</span></td><td>Indentation-based</td><td><code>npm i pug</code></td></tr>
+            <tr><td><span class="p">Handlebars</span></td><td><code>{{ }}</code> Mustache</td><td><code>npm i hbs</code></td></tr>
+            <tr><td><span class="b">Nunjucks</span></td><td><code>{% %}</code> Jinja2</td><td><code>npm i nunjucks</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card red">
+        <h3>Using Multiple Engines</h3>
+        <pre><code class="language-javascript">// Register custom engines
+const ejs = require('ejs');
+const pug = require('pug');
+
+app.engine('ejs', ejs.renderFile);
+app.engine('pug', pug.renderFile);
+
+// Render with explicit extension
+res.render('email.ejs', data);
+res.render('page.pug', data);
+
+// Default engine for extensionless files
+app.set('view engine', 'ejs');</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13 — STATIC FILE SERVING -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">12</span><h2>Static File Serving</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>express.static() Basics</h3>
+        <pre><code class="language-javascript">const path = require('path');
+
+// Serve from /public directory
+app.use(express.static(
+  path.join(__dirname, 'public')
+));
+
+// File structure:
+// public/
+//   css/style.css    → /css/style.css
+//   js/app.js        → /js/app.js
+//   images/logo.png  → /images/logo.png
+//   index.html       → / (auto-served)</code></pre>
+      </div>
+      <div class="card green">
+        <h3>Virtual Path Prefix</h3>
+        <pre><code class="language-javascript">// Files accessible under /static/*
+app.use('/static', express.static(
+  path.join(__dirname, 'public')
+));
+
+// public/css/style.css
+//   → /static/css/style.css
+
+// Multiple static directories
+app.use(express.static('public'));
+app.use(express.static('uploads'));
+// Express searches in order declared</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>Caching &amp; Performance Headers</h3>
+        <pre><code class="language-javascript">app.use(express.static('public', {
+  maxAge: '30d',          // Cache-Control
+  etag: true,             // ETag header
+  lastModified: true,     // Last-Modified
+  immutable: true,        // immutable flag
+  index: false,           // disable auto index
+  dotfiles: 'ignore',     // hide .dotfiles
+  redirect: false,        // no trailing / redirect
+  fallthrough: true       // pass to next handler
+}));
+
+// Versioned assets for cache-busting
+// /assets/style.abc123.css → maxAge: '1y'</code></pre>
+      </div>
+      <div class="card blue">
+        <h3>Production Tips</h3>
+        <ul>
+          <li>Use a <span class="a">reverse proxy</span> (Nginx, Cloudflare) for static files in production</li>
+          <li>Set long <code>maxAge</code> for versioned/hashed assets</li>
+          <li>Use <code>compression</code> middleware for dynamic responses</li>
+          <li>Serve static <em>before</em> session/auth middleware to avoid unnecessary processing</li>
+          <li>Consider a CDN for global distribution</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14 — ENVIRONMENT & CONFIGURATION -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">13</span><h2>Environment &amp; Configuration</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>NODE_ENV</h3>
+        <pre><code class="language-javascript">// Express checks NODE_ENV internally
+// 'production' enables:
+//   - view caching
+//   - less verbose errors
+//   - better performance
+
+// Check in code
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1);
+  app.use(helmet());
+}
+
+// Set via CLI
+// NODE_ENV=production node app.js</code></pre>
+      </div>
+      <div class="card green">
+        <h3>dotenv for Config</h3>
+        <pre><code class="language-javascript">// npm install dotenv
+require('dotenv').config();
+
+// .env file
+// PORT=3000
+// DB_URL=mongodb://localhost/mydb
+// SESSION_SECRET=keyboard_cat
+// API_KEY=sk_live_abc123
+
+const PORT = process.env.PORT || 3000;
+const DB = process.env.DB_URL;
+
+// NEVER commit .env to git!
+// Add to .gitignore</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>app.set() / app.get()</h3>
+        <table>
+          <thead><tr><th>Setting</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>env</code></td><td>Environment mode</td></tr>
+            <tr><td><code>view engine</code></td><td>Template engine</td></tr>
+            <tr><td><code>views</code></td><td>Views directory</td></tr>
+            <tr><td><code>view cache</code></td><td>Cache compiled templates</td></tr>
+            <tr><td><code>trust proxy</code></td><td>Trust X-Forwarded-* headers</td></tr>
+            <tr><td><code>json spaces</code></td><td>Prettify JSON output</td></tr>
+            <tr><td><code>etag</code></td><td>ETag response header</td></tr>
+            <tr><td><code>case sensitive routing</code></td><td>/Foo ≠ /foo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card blue">
+        <h3>trust proxy</h3>
+        <pre><code class="language-javascript">// Behind Nginx, AWS ELB, Heroku, etc.
+app.set('trust proxy', 1);
+
+// Enables correct:
+// - req.ip (client IP, not proxy IP)
+// - req.protocol ('https' not 'http')
+// - req.hostname
+// - secure cookies over HTTPS</code></pre>
+        <p><span class="r">Important:</span> Only enable when behind a trusted proxy. Otherwise clients can spoof headers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15 — SECURITY BEST PRACTICES -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">14</span><h2>Security Best Practices</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card red" style="margin-bottom:.4em;">
+        <h3>Helmet &mdash; Security Headers</h3>
+        <pre><code class="language-javascript">const helmet = require('helmet');
+app.use(helmet());
+
+// Sets 15+ HTTP headers:
+// - Content-Security-Policy
+// - X-Content-Type-Options: nosniff
+// - X-Frame-Options: DENY
+// - Strict-Transport-Security
+// - X-XSS-Protection
+// ...and more
+
+// Customise individual headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "cdn.example.com"]
+    }
+  }
+}));</code></pre>
+      </div>
+      <div class="card amber">
+        <h3>CORS Configuration</h3>
+        <pre><code class="language-javascript">const cors = require('cors');
+
+// Allow specific origin
+app.use(cors({
+  origin: 'https://myapp.com',
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
+// Dynamic origin
+app.use(cors({
+  origin: (origin, cb) =&gt; {
+    const allowed = ['https://a.com', 'https://b.com'];
+    cb(null, allowed.includes(origin));
+  }
+}));</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Rate Limiting</h3>
+        <pre><code class="language-javascript">const rateLimit = require('express-rate-limit');
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: 'Too many requests' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use('/api/', apiLimiter);
+
+// Stricter for auth routes
+const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5
+});
+app.use('/auth/login', authLimiter);</code></pre>
+      </div>
+      <div class="card purple">
+        <h3>Input Validation &amp; CSRF</h3>
+        <pre><code class="language-javascript">const { body, validationResult } = require(
+  'express-validator'
+);
+
+app.post('/users',
+  body('email').isEmail().normalizeEmail(),
+  body('name').trim().notEmpty().escape(),
+  (req, res) =&gt; {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json(
+        { errors: errors.array() }
+      );
+  }
+);</code></pre>
+        <p>Always <span class="a">validate and sanitise</span> input. Never trust <code>req.body</code>, <code>req.params</code>, or <code>req.query</code> directly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16 — PROJECT STRUCTURE & PATTERNS -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">15</span><h2>Project Structure &amp; Patterns</h2></div>
+  <div class="cols cols-6040">
+    <div>
+      <div class="card amber">
+        <h3>MVC Directory Layout</h3>
+        <pre><code class="language-text">my-express-app/
+├── app.js              ← Express setup
+├── server.js           ← listen() entry
+├── package.json
+├── .env
+├── config/
+│   ├── db.js
+│   └── index.js        ← merged config
+├── routes/
+│   ├── index.js        ← mounts all routers
+│   ├── auth.js
+│   ├── users.js
+│   └── posts.js
+├── controllers/
+│   ├── authController.js
+│   ├── userController.js
+│   └── postController.js
+├── services/
+│   ├── userService.js
+│   └── emailService.js
+├── models/
+│   ├── User.js
+│   └── Post.js
+├── middleware/
+│   ├── auth.js
+│   ├── validate.js
+│   └── errorHandler.js
+├── views/
+│   ├── layouts/
+│   ├── partials/
+│   └── pages/
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── tests/
+    ├── routes/
+    └── services/</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Separation of Concerns</h3>
+        <ul>
+          <li><span class="a">app.js</span> &mdash; Express config, middleware, mount routes</li>
+          <li><span class="a">server.js</span> &mdash; <code>app.listen()</code> only (testable app)</li>
+          <li><span class="a">routes/</span> &mdash; URL mapping, input validation</li>
+          <li><span class="a">controllers/</span> &mdash; handle req/res, call services</li>
+          <li><span class="a">services/</span> &mdash; business logic, DB queries</li>
+          <li><span class="a">models/</span> &mdash; data schemas (Mongoose, Sequelize)</li>
+          <li><span class="a">middleware/</span> &mdash; reusable req/res transformations</li>
+        </ul>
+      </div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>Route &rarr; Controller &rarr; Service</h3>
+        <pre><code class="language-javascript">// routes/users.js
+router.get('/:id', userController.getById);
+
+// controllers/userController.js
+exports.getById = async (req, res, next) =&gt; {
+  try {
+    const user = await userService
+      .findById(req.params.id);
+    res.json(user);
+  } catch (err) { next(err); }
+};
+
+// services/userService.js
+exports.findById = (id) =&gt;
+  User.findById(id).lean();</code></pre>
+      </div>
+      <div class="card blue">
+        <h3>Tip: Separate app from server</h3>
+        <p>Export <code>app</code> from <code>app.js</code> and import it in <code>server.js</code> and in tests. This lets you run <code>supertest(app)</code> without starting a real server.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17 — EXPRESS 5: WHAT'S NEW -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">16</span><h2>Express 5 &mdash; What's New</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>Automatic Promise Rejection Handling</h3>
+        <pre><code class="language-javascript">// Express 4 — must wrap or use library
+app.get('/data', async (req, res, next) =&gt; {
+  try {
+    const data = await fetchData();
+    res.json(data);
+  } catch (err) {
+    next(err); // manual forwarding
+  }
+});
+
+// Express 5 — just throw!
+app.get('/data', async (req, res) =&gt; {
+  const data = await fetchData();
+  res.json(data);
+  // Rejected promise → error middleware
+  // automatically — no wrapper needed
+});</code></pre>
+      </div>
+      <div class="card green">
+        <h3>Stricter Path Matching</h3>
+        <pre><code class="language-javascript">// Express 4: loose, regex-like
+app.get('/ab?cd', handler);
+// matches /acd, /abcd
+
+// Express 5: uses path-to-regexp v8
+// — No optional characters with ?
+// — Use {param} for optional segments
+app.get('/users{/:id}', handler);
+// matches /users and /users/42
+
+// Wildcards use * syntax
+app.get('/files/*path', handler);
+// req.params.path = rest of URL</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>Removed / Changed APIs</h3>
+        <table>
+          <thead><tr><th>Express 4</th><th>Express 5</th></tr></thead>
+          <tbody>
+            <tr><td><code>app.del()</code></td><td>Removed &mdash; use <code>app.delete()</code></td></tr>
+            <tr><td><code>req.host</code></td><td>Removed &mdash; use <code>req.hostname</code></td></tr>
+            <tr><td><code>req.param()</code></td><td>Removed &mdash; use <code>req.params</code> / <code>req.query</code></td></tr>
+            <tr><td><code>res.json(status, obj)</code></td><td>Removed &mdash; chain <code>.status().json()</code></td></tr>
+            <tr><td><code>res.send(status)</code></td><td>Removed &mdash; use <code>res.sendStatus()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card blue" style="margin-bottom:.4em;">
+        <h3>Other Improvements</h3>
+        <ul>
+          <li><span class="a">req.query</span> now returns a getter (re-parsed on each access)</li>
+          <li><span class="a">Brotli</span> encoding support for <code>res.sendFile()</code></li>
+          <li><span class="a">res.render()</span> returns a Promise when no callback given</li>
+          <li><span class="a">Node 18+</span> required as minimum version</li>
+        </ul>
+      </div>
+      <div class="card red">
+        <h3>Install Express 5</h3>
+        <pre><code class="language-bash">npm install express@5</code></pre>
+        <p>Express 5 reached stable release in 2024 after years in alpha/beta. Migration is straightforward for most apps &mdash; the biggest change is path matching syntax.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18 — COMPLETE WORKING EXAMPLE -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">17</span><h2>Complete Working Example</h2></div>
+  <div class="cols cols-2">
+    <div>
+      <div class="card amber" style="margin-bottom:.4em;">
+        <h3>app.js &mdash; REST API + Views</h3>
+        <pre><code class="language-javascript">const express = require('express');
+const path = require('path');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const app = express();
+
+// Config
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middleware
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+app.locals.siteName = 'TaskBoard';
+app.locals.year = new Date().getFullYear();
+
+let tasks = [
+  { id: 1, title: 'Learn Express',
+    done: false },
+  { id: 2, title: 'Build an API',
+    done: true },
+];
+let nextId = 3;
+
+// Views
+app.get('/', (req, res) =&gt; {
+  res.render('home', { title: 'Tasks', tasks });
+});
+
+// REST API
+app.get('/api/tasks', (req, res) =&gt; {
+  res.json(tasks);
+});
+
+app.post('/api/tasks', (req, res) =&gt; {
+  const { title } = req.body;
+  if (!title) return res.status(400)
+    .json({ error: 'Title required' });
+  const task = { id: nextId++, title, done: false };
+  tasks.push(task);
+  res.status(201).json(task);
+});
+
+app.patch('/api/tasks/:id', (req, res) =&gt; {
+  const task = tasks.find(
+    t =&gt; t.id === +req.params.id
+  );
+  if (!task) return res.status(404)
+    .json({ error: 'Not found' });
+  Object.assign(task, req.body);
+  res.json(task);
+});
+
+app.delete('/api/tasks/:id', (req, res) =&gt; {
+  tasks = tasks.filter(
+    t =&gt; t.id !== +req.params.id
+  );
+  res.sendStatus(204);
+});</code></pre>
+      </div>
+    </div>
+    <div>
+      <div class="card green" style="margin-bottom:.4em;">
+        <h3>Error Handling &amp; Start</h3>
+        <pre><code class="language-javascript">// 404 handler
+app.use((req, res) =&gt; {
+  res.status(404).render('404', {
+    title: 'Not Found'
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) =&gt; {
+  console.error(err.stack);
+  res.status(500).json({
+    error: 'Internal Server Error'
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =&gt; {
+  console.log(`TaskBoard running on :${PORT}`);
+});</code></pre>
+      </div>
+      <div class="card purple" style="margin-bottom:.4em;">
+        <h3>views/home.ejs</h3>
+        <pre><code class="language-html">&lt;h1&gt;Task List&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;% tasks.forEach(t =&gt; { %&gt;
+    &lt;li class="&lt;%= t.done ? 'done' : '' %&gt;"&gt;
+      &lt;%= t.title %&gt;
+    &lt;/li&gt;
+  &lt;% }) %&gt;
+&lt;/ul&gt;
+&lt;form method="POST" action="/api/tasks"&gt;
+  &lt;input name="title" placeholder="New task"&gt;
+  &lt;button type="submit"&gt;Add&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+      </div>
+      <div class="card blue">
+        <h3>Test with cURL</h3>
+        <pre><code class="language-bash"># List tasks
+curl localhost:3000/api/tasks
+
+# Create task
+curl -X POST localhost:3000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Deploy app"}'
+
+# Toggle done
+curl -X PATCH localhost:3000/api/tasks/1 \
+  -H "Content-Type: application/json" \
+  -d '{"done":true}'
+
+# Delete task
+curl -X DELETE localhost:3000/api/tasks/2</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19 — SUMMARY & NEXT STEPS -->
+<!-- ============================================================ -->
+<section>
+  <div class="slide-hdr"><span class="tag">18</span><h2>Summary &amp; Next Steps</h2></div>
+  <div class="cols cols-3">
+    <div class="card amber">
+      <h3>Core Takeaways</h3>
+      <ul>
+        <li>Express = minimal, middleware-driven web framework for Node.js</li>
+        <li>Routing maps HTTP methods + paths to handler functions</li>
+        <li>Middleware is the core pattern &mdash; everything flows through the pipeline</li>
+        <li>Built-in parsers for JSON, URL-encoded, and static files</li>
+        <li>Error handling uses the 4-argument <code>(err, req, res, next)</code> signature</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Best Practices</h3>
+      <ul>
+        <li>Use <code>express.Router()</code> for modular route files</li>
+        <li>Apply security middleware (helmet, cors, rate-limit)</li>
+        <li>Always validate and sanitise user input</li>
+        <li>Separate app.js from server.js for testability</li>
+        <li>Use environment variables for config (<code>dotenv</code>)</li>
+        <li>Handle errors centrally with custom error classes</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Next Steps</h3>
+      <ul>
+        <li>Build a full CRUD REST API with Express</li>
+        <li>Add a database (MongoDB + Mongoose or PostgreSQL + Sequelize)</li>
+        <li>Implement authentication (Passport.js, JWT)</li>
+        <li>Add WebSocket support (Socket.IO)</li>
+        <li>Deploy to production (PM2, Docker, Railway)</li>
+        <li>Explore Express 5 path matching and async handling</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cols cols-2" style="margin-top:.4em;">
+    <div class="card blue">
+      <h3>Essential Resources</h3>
+      <ul>
+        <li><span class="a">Official Docs:</span> <span class="mono">expressjs.com</span></li>
+        <li><span class="a">GitHub:</span> <span class="mono">github.com/expressjs/express</span></li>
+        <li><span class="a">npm:</span> <span class="mono">npmjs.com/package/express</span></li>
+        <li><span class="a">MDN Express Tutorial:</span> <span class="mono">developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs</span></li>
+      </ul>
+    </div>
+    <div class="card red">
+      <h3>Key Packages</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>express</code></td><td>Web framework</td></tr>
+          <tr><td><code>helmet</code></td><td>Security headers</td></tr>
+          <tr><td><code>cors</code></td><td>Cross-origin resource sharing</td></tr>
+          <tr><td><code>morgan</code></td><td>HTTP request logging</td></tr>
+          <tr><td><code>express-validator</code></td><td>Input validation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+  </div></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+  <script>
+    Reveal.initialize({
+      hash: true, transition: 'fade', transitionSpeed: 'fast',
+      controls: true, progress: true, center: false,
+      width: 1100, height: 900, margin: 0.01,
+      plugins: [RevealHighlight], highlight: { theme: 'monokai' }
+    });
+  </script>
+</body>
+</html>
